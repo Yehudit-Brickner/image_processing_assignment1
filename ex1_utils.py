@@ -38,15 +38,15 @@ def imReadAndConvert(filename: str, representation: int) -> np.ndarray:
     :return: The image object
     """
     print("reading img")
-    if representation == 2:
+    if representation == 1:
+        img_gray = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
+        img_gray = NormalizeData(img_gray)
+        return img_gray
+    else:
         img_color = cv2.imread(filename)
         img_color = cv2.cvtColor(img_color, cv2.COLOR_BGR2RGB)
         img_color = NormalizeData(img_color)
         return img_color
-    else:
-        img_gray = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
-        img_gray = NormalizeData(img_gray)
-        return img_gray
     # pass
 
 
@@ -87,13 +87,10 @@ def transformRGB2YIQ(imgRGB: np.ndarray) -> np.ndarray:
     yiq_img[:, :, 0] = y
     yiq_img[:, :, 1] = i
     yiq_img[:, :, 2] = q
-    # print("image reg")
-    # print(image)
-    # print("image yiq")
-    # print(yiq_img)
-    #     yiq_img=NormalizeData(yiq_img)
+    # yiq_img=NormalizeData(yiq_img)
     plt.imshow(yiq_img)
     plt.show()
+    return yiq_img
     # pass
 
 
@@ -113,13 +110,10 @@ def transformYIQ2RGB(imgYIQ: np.ndarray) -> np.ndarray:
     rgb_img[:, :, 0] = r
     rgb_img[:, :, 1] = g
     rgb_img[:, :, 2] = b
-    # print("image reg")
-    # print(image)
-    # print("image yiq")
-    # print(yiq_img)
-    #     yiq_img=NormalizeData(yiq_img)
+    # rgb_img=NormalizeData(rgb_img)
     plt.imshow(rgb_img)
     plt.show()
+    return rgb_img
     # pass
 
 
