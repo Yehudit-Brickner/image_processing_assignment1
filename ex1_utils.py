@@ -74,6 +74,7 @@ def transformRGB2YIQ(imgRGB: np.ndarray) -> np.ndarray:
     :param imgRGB: An Image in RGB
     :return: A YIQ in image color space
     """
+    imgRGB = NormalizeData(imgRGB)
     r = imgRGB[:, :, 0]
     g = imgRGB[:, :, 1]
     b = imgRGB[:, :, 2]
@@ -87,7 +88,7 @@ def transformRGB2YIQ(imgRGB: np.ndarray) -> np.ndarray:
     yiq_img[:, :, 0] = y
     yiq_img[:, :, 1] = i
     yiq_img[:, :, 2] = q
-    # yiq_img=NormalizeData(yiq_img)
+    yiq_img=NormalizeData(yiq_img)
     plt.imshow(yiq_img)
     plt.show()
     return yiq_img
@@ -100,6 +101,7 @@ def transformYIQ2RGB(imgYIQ: np.ndarray) -> np.ndarray:
     :param imgYIQ: An Image in YIQ
     :return: A RGB in image color space
     """
+    imgYIQ=NormalizeData(imgYIQ)
     y = imgYIQ[:, :, 0]
     i = imgYIQ[:, :, 1]
     q = imgYIQ[:, :, 2]
@@ -110,7 +112,7 @@ def transformYIQ2RGB(imgYIQ: np.ndarray) -> np.ndarray:
     rgb_img[:, :, 0] = r
     rgb_img[:, :, 1] = g
     rgb_img[:, :, 2] = b
-    # rgb_img=NormalizeData(rgb_img)
+    rgb_img=NormalizeData(rgb_img)
     plt.imshow(rgb_img)
     plt.show()
     return rgb_img
