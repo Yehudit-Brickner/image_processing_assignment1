@@ -30,6 +30,9 @@ def myID() -> np.int:
 def NormalizeData(data):
     return (data - np.min(data)) / (np.max(data) - np.min(data))
 
+def Normalize255(data):
+    return (data*255)
+
 def imReadAndConvert(filename: str, representation: int) -> np.ndarray:
     """
     Reads an image, and returns the image converted as requested
@@ -37,7 +40,7 @@ def imReadAndConvert(filename: str, representation: int) -> np.ndarray:
     :param representation: GRAY_SCALE or RGB
     :return: The image object
     """
-    print("reading img")
+    # print("reading img")
     if representation == 1:
         img_gray = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
         img_gray = NormalizeData(img_gray)
@@ -89,8 +92,8 @@ def transformRGB2YIQ(imgRGB: np.ndarray) -> np.ndarray:
     yiq_img[:, :, 1] = i
     yiq_img[:, :, 2] = q
     yiq_img=NormalizeData(yiq_img)
-    plt.imshow(yiq_img)
-    plt.show()
+    # plt.imshow(yiq_img)
+    # plt.show()
     return yiq_img
     # pass
 
@@ -113,8 +116,8 @@ def transformYIQ2RGB(imgYIQ: np.ndarray) -> np.ndarray:
     rgb_img[:, :, 1] = g
     rgb_img[:, :, 2] = b
     rgb_img=NormalizeData(rgb_img)
-    plt.imshow(rgb_img)
-    plt.show()
+    # plt.imshow(rgb_img)
+    # plt.show()
     return rgb_img
     # pass
 
@@ -125,7 +128,60 @@ def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarra
         :param imgOrig: Original Histogram
         :ret
     """
-    pass
+    shape = imgOrig.shape
+    countnum = len(shape)
+    pixel_num = shape[0] * shape[1]
+
+    if (countnum == 2):
+        print("gray scale image")
+        imgOrig_norm255 = Normalize255(imgOrig)
+        histOrg, edges = np.histogram(imgOrig_norm255, 256, [0, 256])
+        cumsumOrig = np.cumsum(histOrg)
+
+        lut = cumsumOrig * 255 / pixel_num
+        lut = np.ceil(lut)
+
+        imEq = imgOrig_norm255
+        for row in range(0, shape[0]):
+            for col in range(0, shape[1]):
+                x = imgOrig_norm255[row][col]
+                x = int(x)
+                y = lut[x]
+                imEq[row][col] = y
+
+        histEQ, edges = np.histogram(imEq, 256, [0, 256])
+        imEq = NormalizeData(imEq)
+        return (imEq, histOrg, histEQ)
+
+    else:
+        print("color image")
+        yiq = transformRGB2YIQ(imgOrig)
+        y = yiq[:, :, 0]
+        y255 = Normalize255(y)
+        print(y255)
+        histOrg, edges = np.histogram(y255, 256, [0, 256])
+        cumsumOrig = np.cumsum(histOrg)
+
+        lut = cumsumOrig * 255 / pixel_num
+        lut = np.ceil(lut)
+
+        y_new = y255
+        for row in range(0, shape[0]):
+            for col in range(0, shape[1]):
+                x = y255[row][col]
+                x = int(x)
+                num = lut[x]
+                y_new[row][col] = num
+
+        histEQ, edges = np.histogram(y_new, 256, [0, 256])
+
+        y_new = NormalizeData(y_new)
+        yiq[:, :, 0] = y_new
+        imEq = transformYIQ2RGB(yiq)
+        imEq = NormalizeData(imEq)
+        return (imEq, histOrg, histEQ)
+
+    # pass
 
 
 def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarray], List[float]):
