@@ -9,7 +9,21 @@
         ........::..:::::..:::......::
 """
 from ex1_utils import LOAD_GRAY_SCALE
+import numpy as np
+import matplotlib.pyplot as plt
+import cv2
 
+
+def NormalizeData(data):
+    """
+    return the array normalized to numbers between 0 and 1
+    :param data:
+    :return:
+    """
+    return (data - np.min(data)) / (np.max(data) - np.min(data))
+
+def nothing(x):
+    pass
 
 def gammaDisplay(img_path: str, rep: int):
     """
@@ -18,7 +32,27 @@ def gammaDisplay(img_path: str, rep: int):
     :param rep: grayscale(1) or RGB(2)
     :return: None
     """
-    pass
+    # create a seperate window named 'controls' for trackbar
+    cv2.namedWindow('image')
+    # create trackbar in 'controls' window with name 'gamma''
+    cv2.createTrackbar('gamma', 'image', 0, 200,nothing)
+    while (1):
+        gamma= cv2.getTrackbarPos('gamma', 'image')/100.0
+        if rep == 1:
+            img_gray = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+            img_gray = NormalizeData(img_gray)
+            img_gray_copy = img_gray ** gamma
+            cv2.imshow('image', img_gray_copy)
+        else:
+            img_color = cv2.imread(img_path)
+            img_color = NormalizeData(img_color)
+            img_color_copy = img_color ** gamma
+            cv2.imshow('image',img_color_copy)
+    # pass
+
+
+
+
 
 
 def main():
