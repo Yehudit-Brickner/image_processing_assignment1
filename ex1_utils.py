@@ -28,9 +28,21 @@ def myID() -> np.int:
 
 
 def NormalizeData(data):
+    """
+    return the array normalized to numbers between 0 and 1
+    :param data:
+    :return:
+    """
     return (data - np.min(data)) / (np.max(data) - np.min(data))
 
 def Normalize255(data):
+    """
+    we will run the function to normalize the array - just to make sure that it is in between  and 1
+    and than we will * by 255 so that we can get values in the range of 0 and 255
+    :param data:
+    :return:
+    """
+    data=NormalizeData(data)
     return (data*255)
 
 def imReadAndConvert(filename: str, representation: int) -> np.ndarray:
@@ -39,6 +51,9 @@ def imReadAndConvert(filename: str, representation: int) -> np.ndarray:
     :param filename: The path to the image
     :param representation: GRAY_SCALE or RGB
     :return: The image object
+    """
+    """
+    we will see if the image is grayscale or color
     """
     # print("reading img")
     if representation == 1:
@@ -87,6 +102,9 @@ def transformRGB2YIQ(imgRGB: np.ndarray) -> np.ndarray:
     y = r*0.299 +g*0.587 +b*0.114
     i = r*0.596 +g*-0.275 +b*-0.321
     q = r*0.212 +g*-0.523 +b*0.311
+    # y = NormalizeData(y)
+    # i = NormalizeData(i)
+    # q = NormalizeData(q)
     yiq_img = imgRGB
     yiq_img[:, :, 0] = y
     yiq_img[:, :, 1] = i
@@ -111,11 +129,14 @@ def transformYIQ2RGB(imgYIQ: np.ndarray) -> np.ndarray:
     r = y + i * 0.956 + q * 0.619
     g = y + i * -0.272 + q * -0.647
     b = y + i * -1.106 + q * 1.703
+    r = NormalizeData(r)
+    g = NormalizeData(g)
+    b = NormalizeData(b)
     rgb_img = imgYIQ
     rgb_img[:, :, 0] = r
     rgb_img[:, :, 1] = g
     rgb_img[:, :, 2] = b
-    rgb_img=NormalizeData(rgb_img)
+    # rgb_img=NormalizeData(rgb_img)
     # plt.imshow(rgb_img)
     # plt.show()
     return rgb_img
