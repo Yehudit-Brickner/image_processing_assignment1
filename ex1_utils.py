@@ -13,6 +13,7 @@ from typing import List
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+import math
 
 LOAD_GRAY_SCALE = 1
 LOAD_RGB = 2
@@ -204,6 +205,96 @@ def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarra
 
     # pass
 
+# function to help with the quantization
+
+def upperold(x, arr):
+    y_val = arr[x]
+    return y_val * x
+
+
+def lowerold(x, arr):
+    y_val = arr[x]
+    return y_val
+
+
+def find_new_z(z, q):
+    #     print("z old=",z)
+    #     print("q=",q)
+    for i in range(len(q) - 1):
+        z[i + 1] = (q[i] + q[i + 1]) / 2
+    return z
+
+
+def find_new_q(z, q, hist):
+    ans = 1
+    new_q = q
+    j = 0;
+    for zs in range(len(z) - 1):
+        res1 = 0
+        res2 = 0
+        for num in range(z[zs], z[zs + 1]):
+            res1 += math.ceil(upperold(num, hist))
+            res2 += math.ceil(lowerold(num, hist))
+        if res2 != 0:
+            qi = int(res1 / res2)
+            q[j] = qi
+            j = j + 1
+        else:
+            ans = 0
+            #             print("res 2 = 0")
+            #             q[j]=int((z[zs]+z[zs+1])/2)
+            new_q = q
+            return new_q, ans
+    new_q = np.ceil(new_q)
+    return new_q, ans
+
+
+def newpic(imOrig255, hist, nQuant, z, q):
+    shape = imOrig255.shape
+    new_img = imOrig255
+    for row in range(0, shape[0]):
+        for col in range(0, shape[1]):
+            x = imOrig255[row][col]
+            x = int(x)
+            for num in range(nQuant):
+                if x >= z[num] and x <= z[num + 1]:
+                    new_img[row][col] = q[num]
+    #     plt.imshow(new_img,cmap='gray')
+    #     plt.show()
+    return new_img
+
+
+def calc_mse(nQuant, z, q, hist):
+    mse = 0
+    for i in range(nQuant):
+        mse1 = 0
+        for j in range(z[i], z[i + 1]):
+            mse1 += (q[i] - j) * (q[i] - j) * hist[j]
+        #         print("mse1",mse1)
+        mse += mse1
+    #     print("mse",mse)
+    return mse
+
+
+def find_orig_z(pixel_num, nQuant, cumsum, z):
+    bound1 = pixel_num / nQuant
+    bound = bound1
+    i = 1
+    for x in range(256):
+        if (cumsum[x] >= bound):
+            z[i] = x
+            i = i + 1
+            bound = bound + bound1
+
+    z = z.astype(int)
+    return z
+
+
+
+
+
+
+
 
 def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarray], List[float]):
     """
@@ -213,4 +304,60 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         :param nIter: Number of optimization loops
         :return: (List[qImage_i],List[error_i])
     """
-    pass
+
+    z = np.zeros(nQuant + 1)  # bourders for the areas nquant+1 numbers in the list
+    q = np.zeros(nQuant)  # the inteseties we wnat nquant
+    list_of_pic = []
+    list_mse = []
+    shape = imOrig.shape
+    pixel_num = shape[0] * shape[1]
+
+    if len(shape) == 2:
+        imOrig255 = Normalize255(imOrig)
+        hist, edges = np.histogram(imOrig255, 256, [0, 256])
+
+        cumsum = np.cumsum(hist)
+
+        z = find_orig_z(pixel_num, nQuant, cumsum, z)
+        q, ans = find_new_q(z, q, hist)
+
+        new_img = newpic(imOrig255, hist, nQuant, z, q)
+        list_of_pic.append(new_img)
+        mse1 = calc_mse(nQuant, z, q, hist)
+        list_mse.append(mse1)
+
+        mse_old = mse1
+        mse_new = 0
+        old_img = new_img
+        q_old = q
+        for k in range(1, nIter):
+            z = find_new_z(z, q)
+            #         print("z=", z)
+            q, ans = find_new_q(z, q, hist)
+            #         print(q, ans)
+            if np.array_equal(q, q_old) and ans == 0:
+                #             print("old q = new q")
+                break
+
+            new_img = newpic(imOrig255, hist, nQuant, z, q)
+            mse_new = calc_mse(nQuant, z, q, hist)
+            if abs(mse_old - mse_new) < 1:
+                break
+            if (mse_new > mse_old):
+                new_img = old_img
+                break
+            list_mse.append(mse_new)
+            list_of_pic.append(new_img)
+            mse_old = mse_new
+            old_img = new_img
+            q_old = q
+        plt.plot(list_mse)
+        plt.show()
+
+        plt.imshow(new_img, cmap='gray')
+        plt.show()
+
+        #     print(list_mse)
+        return list_of_pic, list_mse
+
+    # pass
