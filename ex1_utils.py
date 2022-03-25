@@ -332,11 +332,8 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         q_old = q
         for k in range(1, nIter):
             z = find_new_z(z, q)
-            #         print("z=", z)
             q, ans = find_new_q(z, q, hist)
-            #         print(q, ans)
             if np.array_equal(q, q_old) and ans == 0:
-                #             print("old q = new q")
                 break
 
             new_img = newpic(imOrig255, hist, nQuant, z, q)
@@ -351,13 +348,65 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
             mse_old = mse_new
             old_img = new_img
             q_old = q
-        plt.plot(list_mse)
-        plt.show()
+        # plt.plot(list_mse)
+        # plt.show()
 
-        plt.imshow(new_img, cmap='gray')
-        plt.show()
+        # plt.imshow(new_img, cmap='gray')
+        # plt.show()
 
-        #     print(list_mse)
+        print(list_mse)
+        return list_of_pic, list_mse
+    else:
+        yiq = transformRGB2YIQ(imOrig)
+        y = yiq[:, :, 0]
+        y255 = Normalize255(y)
+        # print(y255)
+        hist, edges = np.histogram(y255, 256, [0, 256])
+        cumsum = np.cumsum(hist)
+        z = find_orig_z(pixel_num, nQuant, cumsum, z)
+        q, ans = find_new_q(z, q, hist)
+
+        new_img = newpic(y255, hist, nQuant, z, q)
+        y_new = NormalizeData(new_img)
+        yiq[:, :, 0] = y_new
+        imnew = transformYIQ2RGB(yiq)
+        imnew = NormalizeData(imnew)
+        list_of_pic.append(imnew)
+        mse1 = calc_mse(nQuant, z, q, hist)
+        list_mse.append(mse1)
+
+        mse_old = mse1
+        mse_new = 0
+        old_img = new_img
+        q_old = q
+        for k in range(1, nIter):
+            z = find_new_z(z, q)
+            q, ans = find_new_q(z, q, hist)
+            if np.array_equal(q, q_old) and ans == 0:
+                break
+
+            new_img = newpic(y255, hist, nQuant, z, q)
+            mse_new = calc_mse(nQuant, z, q, hist)
+            if abs(mse_old - mse_new) < 1:
+                break
+            if (mse_new > mse_old):
+                new_img = old_img
+                break
+            list_mse.append(mse_new)
+            y_new = NormalizeData(new_img)
+            yiq[:, :, 0] = y_new
+            imnew = transformYIQ2RGB(yiq)
+            imnew = NormalizeData(imnew)
+            list_of_pic.append(imnew)
+            mse_old = mse_new
+            old_img = new_img
+            q_old = q
+        # plt.plot(list_mse)
+        # plt.show()
+        print(list_mse)
         return list_of_pic, list_mse
 
-    # pass
+
+
+
+
