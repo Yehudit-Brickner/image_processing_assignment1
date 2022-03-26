@@ -233,8 +233,9 @@ def find_new_q(z, q, hist,num_pixel):
         res1 = 0
         res2 = 0
         for num in range(z[zs], z[zs + 1]):
-            res1 += math.ceil(upperold(num, hist,num_pixel))
-            res2 += math.ceil(lowerold(num, hist,num_pixel))
+            res1 += upperold(num, hist,num_pixel)
+            res2 +=lowerold(num, hist,num_pixel)
+            
         if res2 != 0:
             qi = int(res1 / res2)
             q[j] = qi
