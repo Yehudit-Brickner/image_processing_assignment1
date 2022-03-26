@@ -235,7 +235,7 @@ def find_new_q(z, q, hist,num_pixel):
         for num in range(z[zs], z[zs + 1]):
             res1 += upperold(num, hist,num_pixel)
             res2 +=lowerold(num, hist,num_pixel)
-            
+
         if res2 != 0:
             qi = int(res1 / res2)
             q[j] = qi
@@ -321,6 +321,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
 
         z = find_orig_z(pixel_num, nQuant, cumsum, z)
         q, ans = find_new_q(z, q, hist,pixel_num)
+        print("first q",q)
 
         new_img = newpic(imOrig255, hist, nQuant, z, q)
         list_of_pic.append(new_img)
@@ -343,6 +344,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
                 break
             if (mse_new > mse_old):
                 new_img = old_img
+                print("mse got bigger")
                 break
             list_mse.append(mse_new)
             list_of_pic.append(new_img)
@@ -356,6 +358,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         # plt.show()
 
         print(list_mse)
+        print(q)
         return list_of_pic, list_mse
     else:
         yiq = transformRGB2YIQ(imOrig)
@@ -366,6 +369,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         cumsum = np.cumsum(hist)
         z = find_orig_z(pixel_num, nQuant, cumsum, z)
         q, ans = find_new_q(z, q, hist,pixel_num)
+        print("first q", q)
 
         new_img = newpic(y255, hist, nQuant, z, q)
         y_new = NormalizeData(new_img)
@@ -392,6 +396,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
                 break
             if (mse_new > mse_old):
                 new_img = old_img
+                print("mse got bigger")
                 break
             list_mse.append(mse_new)
             y_new = NormalizeData(new_img)
@@ -404,7 +409,9 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
             q_old = q
         # plt.plot(list_mse)
         # plt.show()
+        print(q)
         print(list_mse)
+        print(q)
         return list_of_pic, list_mse
 
 
