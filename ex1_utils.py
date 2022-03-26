@@ -207,14 +207,14 @@ def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarra
 
 # function to help with the quantization
 
-def upperold(x, arr):
+def upperold(x, arr,num_pixel):
     y_val = arr[x]
-    return y_val * x
+    return y_val/num_pixel * x
 
 
-def lowerold(x, arr):
+def lowerold(x, arr,num_pixel):
     y_val = arr[x]
-    return y_val
+    return y_val/num_pixel
 
 
 def find_new_z(z, q):
@@ -225,7 +225,7 @@ def find_new_z(z, q):
     return z
 
 
-def find_new_q(z, q, hist):
+def find_new_q(z, q, hist,num_pixel):
     ans = 1
     new_q = q
     j = 0;
@@ -233,8 +233,8 @@ def find_new_q(z, q, hist):
         res1 = 0
         res2 = 0
         for num in range(z[zs], z[zs + 1]):
-            res1 += math.ceil(upperold(num, hist))
-            res2 += math.ceil(lowerold(num, hist))
+            res1 += math.ceil(upperold(num, hist,num_pixel))
+            res2 += math.ceil(lowerold(num, hist,num_pixel))
         if res2 != 0:
             qi = int(res1 / res2)
             q[j] = qi
@@ -264,12 +264,12 @@ def newpic(imOrig255, hist, nQuant, z, q):
     return new_img
 
 
-def calc_mse(nQuant, z, q, hist):
+def calc_mse(nQuant, z, q, hist,pixel_num):
     mse = 0
     for i in range(nQuant):
         mse1 = 0
         for j in range(z[i], z[i + 1]):
-            mse1 += (q[i] - j) * (q[i] - j) * hist[j]
+            mse1 += (q[i] - j) * (q[i] - j) * hist[j]/pixel_num
         #         print("mse1",mse1)
         mse += mse1
     #     print("mse",mse)
@@ -319,11 +319,11 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         cumsum = np.cumsum(hist)
 
         z = find_orig_z(pixel_num, nQuant, cumsum, z)
-        q, ans = find_new_q(z, q, hist)
+        q, ans = find_new_q(z, q, hist,pixel_num)
 
         new_img = newpic(imOrig255, hist, nQuant, z, q)
         list_of_pic.append(new_img)
-        mse1 = calc_mse(nQuant, z, q, hist)
+        mse1 = calc_mse(nQuant, z, q, hist,pixel_num)
         list_mse.append(mse1)
 
         mse_old = mse1
@@ -332,12 +332,12 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         q_old = q
         for k in range(1, nIter):
             z = find_new_z(z, q)
-            q, ans = find_new_q(z, q, hist)
+            q, ans = find_new_q(z, q, hist,pixel_num)
             if np.array_equal(q, q_old) and ans == 0:
                 break
 
             new_img = newpic(imOrig255, hist, nQuant, z, q)
-            mse_new = calc_mse(nQuant, z, q, hist)
+            mse_new = calc_mse(nQuant, z, q, hist,pixel_num)
             if abs(mse_old - mse_new) < 1:
                 break
             if (mse_new > mse_old):
@@ -364,7 +364,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         hist, edges = np.histogram(y255, 256, [0, 256])
         cumsum = np.cumsum(hist)
         z = find_orig_z(pixel_num, nQuant, cumsum, z)
-        q, ans = find_new_q(z, q, hist)
+        q, ans = find_new_q(z, q, hist,pixel_num)
 
         new_img = newpic(y255, hist, nQuant, z, q)
         y_new = NormalizeData(new_img)
@@ -372,7 +372,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         imnew = transformYIQ2RGB(yiq)
         imnew = NormalizeData(imnew)
         list_of_pic.append(imnew)
-        mse1 = calc_mse(nQuant, z, q, hist)
+        mse1 = calc_mse(nQuant, z, q, hist,pixel_num)
         list_mse.append(mse1)
 
         mse_old = mse1
@@ -381,12 +381,12 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         q_old = q
         for k in range(1, nIter):
             z = find_new_z(z, q)
-            q, ans = find_new_q(z, q, hist)
+            q, ans = find_new_q(z, q, hist,pixel_num)
             if np.array_equal(q, q_old) and ans == 0:
                 break
 
             new_img = newpic(y255, hist, nQuant, z, q)
-            mse_new = calc_mse(nQuant, z, q, hist)
+            mse_new = calc_mse(nQuant, z, q, hist,pixel_num)
             if abs(mse_old - mse_new) < 1:
                 break
             if (mse_new > mse_old):
