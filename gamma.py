@@ -35,10 +35,10 @@ def gammaDisplay(img_path: str, rep: int):
     # create a separate window named 'image' for trackbar
     cv2.namedWindow('image')
     # create trackbar in 'image' window with name 'gamma''
-    # cv2.createTrackbar('gamma', 'image', 0, 200,nothing)
+    cv2.createTrackbar('gamma', 'image', 0, 200,nothing)
     while (1):
-        # gamma= cv2.getTrackbarPos('gamma', 'image')/100.0
-        gamma=1
+        gamma= cv2.getTrackbarPos('gamma', 'image')/100.0
+
         if rep == 1:
             img_gray = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
             img_gray = (img_gray - np.min(img_gray)) / (np.max(img_gray) - np.min(img_gray))
@@ -49,6 +49,7 @@ def gammaDisplay(img_path: str, rep: int):
             img_color = (img_color - np.min(img_color)) / (np.max(img_color) - np.min(img_color))
             img_color_copy = img_color ** gamma
             cv2.imshow('image',img_color_copy)
+        cv2.waitKey(1)
     cv2.destroyAllWindows()
     # pass
 
