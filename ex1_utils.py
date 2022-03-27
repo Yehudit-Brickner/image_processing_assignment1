@@ -56,14 +56,14 @@ def imReadAndConvert(filename: str, representation: int) -> np.ndarray:
     """
     we will see if the image is grayscale or color
     """
-    # print("reading img")
-    if representation == 1:
-        img_gray = cv2.imread(filename, cv2.IMREAD_GRAYSCALE)
+
+    if representation == 1: # check if grayscale or rgb
+        img_gray = cv2.imread(filename, cv2.IMREAD_GRAYSCALE) # read the image
         img_gray = NormalizeData(img_gray)
         return img_gray
     else:
-        img_color = cv2.imread(filename)
-        img_color = cv2.cvtColor(img_color, cv2.COLOR_BGR2RGB)
+        img_color = cv2.imread(filename) # read the image
+        img_color = cv2.cvtColor(img_color, cv2.COLOR_BGR2RGB) # change the image from BGR to RGB
         img_color = NormalizeData(img_color)
         return img_color
     # pass
@@ -76,15 +76,15 @@ def imDisplay(filename: str, representation: int):
     :param representation: GRAY_SCALE or RGB
     :return: None
     """
-    img = imReadAndConvert(filename, representation)
-    if representation == 1:
+    img = imReadAndConvert(filename, representation) #get the array of the image
+    if representation == 1: # check if grayscale or rgb
         # By default, matplotlib use a colormap which maps intensities to colors. so without the cmap='gray' the bic whold be blueish yellow
         plt.imshow(img, cmap='gray')
         plt.show()
     else:
         plt.imshow(img)
         plt.show()
-    # pass
+
 
 
 def transformRGB2YIQ(imgRGB: np.ndarray) -> np.ndarray:
@@ -93,28 +93,25 @@ def transformRGB2YIQ(imgRGB: np.ndarray) -> np.ndarray:
     :param imgRGB: An Image in RGB
     :return: A YIQ in image color space
     """
-    imgRGB = NormalizeData(imgRGB)
+    imgRGB = NormalizeData(imgRGB) # normalize the array
+    # split into the R,G,B channels
     r = imgRGB[:, :, 0]
     g = imgRGB[:, :, 1]
     b = imgRGB[:, :, 2]
-    # y = r * 0.299 + g * 0.587 + b * 0.114
-    # i = r * 0.595879 + g * -0.274133 + b * -0.321746
-    # q = r * 0.211205 + g * -0.523083 + b * 0.311878
-    y = r*0.299 +g*0.587 +b*0.114
-    i = r*0.596 +g*-0.275 +b*-0.321
-    q = r*0.212 +g*-0.523 +b*0.311
-    # y = NormalizeData(y)
-    # i = NormalizeData(i)
-    # q = NormalizeData(q)
-    yiq_img = imgRGB
+    # create the new channels
+    y = r * 0.299 + g * 0.587 + b * 0.114
+    i = r * 0.596 + g * -0.275 + b * -0.321
+    q = r * 0.212 + g * -0.523 + b * 0.311
+
+    yiq_img = imgRGB # create an array that is the same as the original so that it will be the exact same size
+    # put the Y,I,Q channels into the yiq_img
     yiq_img[:, :, 0] = y
     yiq_img[:, :, 1] = i
     yiq_img[:, :, 2] = q
-    yiq_img=NormalizeData(yiq_img)
-    # plt.imshow(yiq_img)
-    # plt.show()
+    yiq_img=NormalizeData(yiq_img) # normalize the array
+
     return yiq_img
-    # pass
+
 
 
 def transformYIQ2RGB(imgYIQ: np.ndarray) -> np.ndarray:
@@ -123,25 +120,28 @@ def transformYIQ2RGB(imgYIQ: np.ndarray) -> np.ndarray:
     :param imgYIQ: An Image in YIQ
     :return: A RGB in image color space
     """
-    imgYIQ=NormalizeData(imgYIQ)
+    imgYIQ=NormalizeData(imgYIQ) # normalize the array
+    # split into the Y,I,Q channels
     y = imgYIQ[:, :, 0]
     i = imgYIQ[:, :, 1]
     q = imgYIQ[:, :, 2]
+    # create the new channels
     r = y + i * 0.956 + q * 0.619
     g = y + i * -0.272 + q * -0.647
     b = y + i * -1.106 + q * 1.703
+    # normalize the new channels
     r = NormalizeData(r)
     g = NormalizeData(g)
     b = NormalizeData(b)
-    rgb_img = imgYIQ
+
+    rgb_img = imgYIQ # create an array that is the same as the original so that it will be the exact same size
+    # put the R,G,B channels into the rgb_img
     rgb_img[:, :, 0] = r
     rgb_img[:, :, 1] = g
     rgb_img[:, :, 2] = b
-    # rgb_img=NormalizeData(rgb_img)
-    # plt.imshow(rgb_img)
-    # plt.show()
+
     return rgb_img
-    # pass
+    
 
 
 def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
@@ -260,8 +260,6 @@ def newpic(imOrig255, hist, nQuant, z, q):
             for num in range(nQuant):
                 if x >= z[num] and x <= z[num + 1]:
                     new_img[row][col] = q[num]
-    #     plt.imshow(new_img,cmap='gray')
-    #     plt.show()
     return new_img
 
 
@@ -271,9 +269,7 @@ def calc_mse(nQuant, z, q, hist,pixel_num):
         mse1 = 0
         for j in range(z[i], z[i + 1]):
             mse1 += (q[i] - j) * (q[i] - j) * hist[j]/pixel_num
-        #         print("mse1",mse1)
         mse += mse1
-    #     print("mse",mse)
     return mse
 
 
@@ -322,6 +318,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         z = find_orig_z(pixel_num, nQuant, cumsum, z)
         q, ans = find_new_q(z, q, hist,pixel_num)
         print("first q",q)
+        print("first z",z)
 
         new_img = newpic(imOrig255, hist, nQuant, z, q)
         list_of_pic.append(new_img)
@@ -340,7 +337,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
 
             new_img = newpic(imOrig255, hist, nQuant, z, q)
             mse_new = calc_mse(nQuant, z, q, hist,pixel_num)
-            if abs(mse_old - mse_new) < 1:
+            if abs(mse_old - mse_new) < 0.001:
                 break
             if (mse_new > mse_old):
                 new_img = old_img
@@ -358,7 +355,8 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         # plt.show()
 
         print(list_mse)
-        print(q)
+        print("z=",z)
+        print("q=",q)
         return list_of_pic, list_mse
     else:
         yiq = transformRGB2YIQ(imOrig)
@@ -370,6 +368,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         z = find_orig_z(pixel_num, nQuant, cumsum, z)
         q, ans = find_new_q(z, q, hist,pixel_num)
         print("first q", q)
+        print("first z", z)
 
         new_img = newpic(y255, hist, nQuant, z, q)
         y_new = NormalizeData(new_img)
@@ -392,7 +391,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
 
             new_img = newpic(y255, hist, nQuant, z, q)
             mse_new = calc_mse(nQuant, z, q, hist,pixel_num)
-            if abs(mse_old - mse_new) < 1:
+            if abs(mse_old - mse_new) < 0.001:
                 break
             if (mse_new > mse_old):
                 new_img = old_img
@@ -409,9 +408,9 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
             q_old = q
         # plt.plot(list_mse)
         # plt.show()
-        print(q)
         print(list_mse)
-        print(q)
+        print("z=",z)
+        print("q=",q)
         return list_of_pic, list_mse
 
 
