@@ -431,7 +431,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
 
 def upper(x, arr, num_pixel):
     y_val = arr[x]
-    return y_val / num_pixel * x
+    return x*y_val / num_pixel
 
 
 def lower(x, arr, num_pixel):
@@ -440,14 +440,16 @@ def lower(x, arr, num_pixel):
 
 
 def find_new_z(z, q):
+    new_z =z.copy()
     for i in range(len(q) - 1):
-        z[i + 1] = (q[i] + q[i + 1]) / 2
-    return z
+        new_z[i + 1] = (q[i] + q[i + 1]) / 2
+    print("new z",new_z)
+    return new_z
 
 
 def find_new_q(z, q, hist, num_pixel):
-    new_q = q
-    j = 0;
+    new_q = q.copy()
+    j = 0
     for zs in range(len(z) - 1):
         res1 = 0
         res2 = 0
@@ -459,14 +461,17 @@ def find_new_q(z, q, hist, num_pixel):
                 res1 += upper(num, hist, num_pixel)
                 res2 += lower(num, hist, num_pixel)
             if res1 == 0 or res2 == 0:
-                new_q[j] = int((z[zs] + z[zs + 1]) / 2)
+                # new_q[j] = int((z[zs] + z[zs + 1]) / 2)
+                new_q[j] = z[zs]
                 j = j + 1
             else:
                 qi = int(res1 / res2)
                 new_q[j] = qi
                 j = j + 1
-    new_q = np.ceil(new_q)
+    new_q = new_q.astype(int)
+    print("new q",new_q)
     return new_q
+
 
 
 def newpic(imOrig255, hist, nQuant, z, q):
@@ -482,45 +487,28 @@ def newpic(imOrig255, hist, nQuant, z, q):
     return new_img
 
 
-# def calc_mse(nQuant, z, q, hist, pixel_num):
-#     mse = 0
-#     for i in range(nQuant):
-#         mse1 = 0
-#         for j in range(z[i], z[i + 1]):
-#             mse1 += (q[i] - j) * (q[i] - j) * hist[j] / pixel_num
-#         mse += mse1
-#     return mse
-
-def calc_mse(imgOrig, newImg,num_pixel):
-    # print("imgOrig",imgOrig)
-    # print("newImg",newImg)
-    # m=imgOrig-newImg
-    # m=m*m
-    # s=np.sum(m)
-    # print(s)
-    # e=math.sqrt(s)
-    # e=e/num_pixel
-    # print(e)
+def calc_mse(imgOrig, newImg):
     mse=((imgOrig- newImg) ** 2).mean(axis=None)
     return mse
 
 
 def find_orig_z(pixel_num, nQuant, cumsum, z):
+    new_z = z.copy()
     bound1 = pixel_num / nQuant
     bound = bound1
     i = 1
     for x in range(255):
         if (cumsum[x] >= bound):
-            z[i] = x
+            new_z[i] = x
             i = i + 1
             bound = bound + bound1
     while (i < len(z) - 1):
-        z[i] = 255
+        new_z[i] = 255
         i = i + 1
-    z[0] = 0
-    z[len(z) - 1] = 255
-    z = z.astype(int)
-    return z
+    new_z[0] = 0
+    new_z[len(z) - 1] = 255
+    new_z = new_z.astype(int)
+    return new_z
 
 
 def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarray], List[float]):
@@ -531,119 +519,81 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         :param nIter: Number of optimization loops
         :return: (List[qImage_i],List[error_i])
     """
+    try:
+        z = np.zeros(nQuant + 1)  # bourders for the areas nquant+1 numbers in the list
+        q = np.zeros(nQuant)  # the inteseties we wnat nquant
+        list_of_pic = []
+        list_mse = []
+        shape = imOrig.shape
+        pixel_num = shape[0] * shape[1]
+        count = 0
 
-    z = np.zeros(nQuant + 1)  # bourders for the areas nquant+1 numbers in the list
-    q = np.zeros(nQuant)  # the inteseties we wnat nquant
-    list_of_pic = []
-    list_mse = []
-    shape = imOrig.shape
-    pixel_num = shape[0] * shape[1]
+        if len(shape) == 2:
+            imOrig255 = Normalize255(imOrig)
+            hist, edges = np.histogram(imOrig255, 256, [0, 256])
+            cumsum = np.cumsum(hist)
 
-    if len(shape) == 2:
-        imOrig255 = Normalize255(imOrig)
-        hist, edges = np.histogram(imOrig255, 256, [0, 256])
-        cumsum = np.cumsum(hist)
+            z = find_orig_z(pixel_num, nQuant, cumsum, z)
 
-        z = find_orig_z(pixel_num, nQuant, cumsum, z)
-        # q = find_new_q(z, q, hist, pixel_num)
-        # print("first q", q)
-        # print("first z", z)
+            for k in range(0, nIter):
+                if count > 10:
+                    return list_of_pic, list_mse
+                print("iteration ", k)
+                q = find_new_q(z, q, hist, pixel_num)
+                z = find_new_z(z, q)
 
-        # new_img = newpic(imOrig255, hist, nQuant, z, q)
-        # list_of_pic.append(new_img)
-        # mse1 = calc_mse(nQuant, z, q, hist, pixel_num)
-        # list_mse.append(mse1)
+                new_img = newpic(imOrig255, hist, nQuant, z, q)
+                mse_new = calc_mse(imOrig255,new_img)
 
-        mse_old =100000
-        # mse_new = 0
-        # old_img = new_img
-        # q_old = q
-        for k in range(0, nIter):
-            print("iteration ", k)
-            q = find_new_q(z, q, hist, pixel_num)
-            z = find_new_z(z, q)
 
-            new_img = newpic(imOrig255, hist, nQuant, z, q)
-            mse_new = calc_mse(imOrig255,new_img, pixel_num)
+                if k > 0:
+                    if list_mse[-1] - mse_new < 0.001:
+                        count = count+1
+                    print(list_mse[-1], mse_new)
+                    # if (list_mse[-1]< mse_new+1):
+                    #     print("mse got bigger")
+                    #     # print(list_mse)
+                    #     # print(list_of_pic)
+                    #     return list_of_pic, list_mse
+                list_mse.append(mse_new)
+                new_img = NormalizeData(new_img)
+                list_of_pic.append(new_img)
 
-            if abs(mse_old - mse_new) < 0.001:
-                break
-            if (mse_new > mse_old):
-                # new_img = old_img
-                print("mse got bigger")
-                print(list_mse)
-                print(list_of_pic)
-                return list_of_pic, list_mse
-            list_mse.append(mse_new)
-            new_img = NormalizeData(new_img)
-            list_of_pic.append(new_img)
-            mse_old = mse_new
-            old_img = new_img
-            # q_old = q
-        # plt.plot(list_mse)
-        # plt.show()
+            return list_of_pic, list_mse
+        else:
+            yiq = transformRGB2YIQ(imOrig)
+            y = yiq[:, :, 0]
+            y255 = Normalize255(y)
+            hist, edges = np.histogram(y255, 256, [0, 256])
+            cumsum = np.cumsum(hist)
+            z = find_orig_z(pixel_num, nQuant, cumsum, z)
 
-        print(list_mse)
-        print(list_of_pic)
-        # print("z=", z)
-        # print("q=", q)
-        return list_of_pic, list_mse
-    else:
-        yiq = transformRGB2YIQ(imOrig)
-        y = yiq[:, :, 0]
-        y255 = Normalize255(y)
-        # print(y255)
-        hist, edges = np.histogram(y255, 256, [0, 256])
-        cumsum = np.cumsum(hist)
-        z = find_orig_z(pixel_num, nQuant, cumsum, z)
-        # q = find_new_q(z, q, hist, pixel_num)
-        # print("first q", q)
-        # print("first z", z)
+            for k in range(0, nIter):
+                if count > 10:
+                    return list_of_pic, list_mse
+                print("iteration ", k)
+                q = find_new_q(z, q, hist, pixel_num)
+                z = find_new_z(z, q)
 
-        # new_img = newpic(y255, hist, nQuant, z, q)
-        # y_new = NormalizeData(new_img)
-        # yiq[:, :, 0] = y_new
-        # imnew = transformYIQ2RGB(yiq)
-        # imnew = NormalizeData(imnew)
-        # list_of_pic.append(imnew)
-        # mse1 = calc_mse(nQuant, z, q, hist, pixel_num)
-        # list_mse.append(mse1)
+                new_img = newpic(y255, hist, nQuant, z, q)
+                mse_new = calc_mse(y255,new_img)
 
-        mse_old = 100000
-        # mse_new = 0
-        # old_img = new_img
-        # q_old = q
-        for k in range(0, nIter):
-            print("iteration ", k)
-            q = find_new_q(z, q, hist, pixel_num)
-            z = find_new_z(z, q)
+                if(k>0):
+                    if list_mse[-1] - mse_new < 0.001:
+                        count=count+1
+                    print(list_mse[-1], mse_new)
+                    # if (list_mse[-1] < mse_new+1):
+                    #     print("mse got bigger")
+                    #     return list_of_pic, list_mse
+                list_mse.append(mse_new)
+                y_new = NormalizeData(new_img)
+                yiq[:, :, 0] = y_new
+                imnew = transformYIQ2RGB(yiq)
+                #imnew = NormalizeData(imnew)
+                list_of_pic.append(imnew)
 
-            new_img = newpic(y255, hist, nQuant, z, q)
-            mse_new = calc_mse(y255,new_img,pixel_num)
-            if abs(mse_old - mse_new) < 0.001:
-                break
-            if (mse_new > mse_old):
-                # new_img = old_img
-                print("mse got bigger")
-                print(list_mse)
-                print(list_of_pic)
-                return list_of_pic, list_mse
-            list_mse.append(mse_new)
-            y_new = NormalizeData(new_img)
-            yiq[:, :, 0] = y_new
-            imnew = transformYIQ2RGB(yiq)
-            #imnew = NormalizeData(imnew)
-            list_of_pic.append(imnew)
-            mse_old = mse_new
-            old_img = new_img
-            q_old = q
-        # plt.plot(list_mse)
-        # plt.show()
-        print(list_mse)
-        print(list_of_pic)
-        # print("z=", z)
-        # print("q=", q)
-        return list_of_pic, list_mse
-
+            return list_of_pic, list_mse
+    except:
+        print("caught an error")
 
 
