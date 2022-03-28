@@ -56,17 +56,18 @@ def imReadAndConvert(filename: str, representation: int) -> np.ndarray:
     """
     we will see if the image is grayscale or color
     """
-
-    if representation == 1: # check if grayscale or rgb
-        img_gray = cv2.imread(filename, cv2.IMREAD_GRAYSCALE) # read the image
-        img_gray = NormalizeData(img_gray)
-        return img_gray
-    else:
-        img_color = cv2.imread(filename) # read the image
-        img_color = cv2.cvtColor(img_color, cv2.COLOR_BGR2RGB) # change the image from BGR to RGB
-        img_color = NormalizeData(img_color)
-        return img_color
-
+    try:
+        if representation == 1: # check if grayscale or rgb
+            img_gray = cv2.imread(filename, cv2.IMREAD_GRAYSCALE) # read the image
+            img_gray = NormalizeData(img_gray)
+            return img_gray
+        else:
+            img_color = cv2.imread(filename) # read the image
+            img_color = cv2.cvtColor(img_color, cv2.COLOR_BGR2RGB) # change the image from BGR to RGB
+            img_color = NormalizeData(img_color)
+            return img_color
+    except:
+        print("wrong file type")
 
 
 def imDisplay(filename: str, representation: int):
@@ -76,15 +77,17 @@ def imDisplay(filename: str, representation: int):
     :param representation: GRAY_SCALE or RGB
     :return: None
     """
-    img = imReadAndConvert(filename, representation) #get the array of the image
-    if representation == 1: # check if grayscale or rgb
-        # By default, matplotlib use a colormap which maps intensities to colors. so without the cmap='gray' the bic whold be blueish yellow
-        plt.imshow(img, cmap='gray')
-        plt.show()
-    else:
-        plt.imshow(img)
-        plt.show()
-
+    try:
+        img = imReadAndConvert(filename, representation) #get the array of the image
+        if representation == 1: # check if grayscale or rgb
+            # By default, matplotlib use a colormap which maps intensities to colors. so without the cmap='gray' the bic whold be blueish yellow
+            plt.imshow(img, cmap='gray')
+            plt.show()
+        else:
+            plt.imshow(img)
+            plt.show()
+    except:
+        print("caught on exception")
 
 
 def transformRGB2YIQ(imgRGB: np.ndarray) -> np.ndarray:
@@ -93,25 +96,27 @@ def transformRGB2YIQ(imgRGB: np.ndarray) -> np.ndarray:
     :param imgRGB: An Image in RGB
     :return: A YIQ in image color space
     """
-    imgRGB = NormalizeData(imgRGB) # normalize the array
-    # split into the R,G,B channels
-    r = imgRGB[:, :, 0]
-    g = imgRGB[:, :, 1]
-    b = imgRGB[:, :, 2]
-    # create the new channels
-    y = r * 0.299 + g * 0.587 + b * 0.114
-    i = r * 0.596 + g * -0.275 + b * -0.321
-    q = r * 0.212 + g * -0.523 + b * 0.311
+    try:
+        imgRGB = NormalizeData(imgRGB) # normalize the array
+        # split into the R,G,B channels
+        r = imgRGB[:, :, 0]
+        g = imgRGB[:, :, 1]
+        b = imgRGB[:, :, 2]
+        # create the new channels
+        y = r * 0.299 + g * 0.587 + b * 0.114
+        i = r * 0.596 + g * -0.275 + b * -0.321
+        q = r * 0.212 + g * -0.523 + b * 0.311
 
-    yiq_img = imgRGB # create an array that is the same as the original so that it will be the exact same size
-    # put the Y,I,Q channels into the yiq_img
-    yiq_img[:, :, 0] = y
-    yiq_img[:, :, 1] = i
-    yiq_img[:, :, 2] = q
-    yiq_img=NormalizeData(yiq_img) # normalize the array
+        yiq_img = imgRGB # create an array that is the same as the original so that it will be the exact same size
+        # put the Y,I,Q channels into the yiq_img
+        yiq_img[:, :, 0] = y
+        yiq_img[:, :, 1] = i
+        yiq_img[:, :, 2] = q
+        yiq_img=NormalizeData(yiq_img) # normalize the array
 
-    return yiq_img
-
+        return yiq_img
+    except:
+        print("was mot given an array")
 
 
 def transformYIQ2RGB(imgYIQ: np.ndarray) -> np.ndarray:
@@ -120,28 +125,30 @@ def transformYIQ2RGB(imgYIQ: np.ndarray) -> np.ndarray:
     :param imgYIQ: An Image in YIQ
     :return: A RGB in image color space
     """
-    imgYIQ=NormalizeData(imgYIQ) # normalize the array
-    # split into the Y,I,Q channels
-    y = imgYIQ[:, :, 0]
-    i = imgYIQ[:, :, 1]
-    q = imgYIQ[:, :, 2]
-    # create the new channels
-    r = y + i * 0.956 + q * 0.619
-    g = y + i * -0.272 + q * -0.647
-    b = y + i * -1.106 + q * 1.703
-    # normalize the new channels
-    r = NormalizeData(r)
-    g = NormalizeData(g)
-    b = NormalizeData(b)
+    try:
+        imgYIQ=NormalizeData(imgYIQ) # normalize the array
+        # split into the Y,I,Q channels
+        y = imgYIQ[:, :, 0]
+        i = imgYIQ[:, :, 1]
+        q = imgYIQ[:, :, 2]
+        # create the new channels
+        r = y + i * 0.956 + q * 0.619
+        g = y + i * -0.272 + q * -0.647
+        b = y + i * -1.106 + q * 1.703
+        # normalize the new channels
+        r = NormalizeData(r)
+        g = NormalizeData(g)
+        b = NormalizeData(b)
 
-    rgb_img = imgYIQ # create an array that is the same as the original so that it will be the exact same size
-    # put the R,G,B channels into the rgb_img
-    rgb_img[:, :, 0] = r
-    rgb_img[:, :, 1] = g
-    rgb_img[:, :, 2] = b
+        rgb_img = imgYIQ # create an array that is the same as the original so that it will be the exact same size
+        # put the R,G,B channels into the rgb_img
+        rgb_img[:, :, 0] = r
+        rgb_img[:, :, 1] = g
+        rgb_img[:, :, 2] = b
 
-    return rgb_img
-
+        return rgb_img
+    except:
+        print("was mot given an array")
 
 
 def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
@@ -150,64 +157,66 @@ def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarra
         :param imgOrig: Original Histogram
         :ret
     """
-    shape = imgOrig.shape # gets the shape of the array Ex. (300,600)=grayscale or(300,600,3)=rgb
-    countnum = len(shape) # gets the amount of values in the shape
-    pixel_num = shape[0] * shape[1] # the amount of pixels in the picture
+    try:
+        shape = imgOrig.shape # gets the shape of the array Ex. (300,600)=grayscale or(300,600,3)=rgb
+        countnum = len(shape) # gets the amount of values in the shape
+        pixel_num = shape[0] * shape[1] # the amount of pixels in the picture
 
-    if (countnum == 2): #checks if the pic is grayscale or rgb
-        # print("gray scale image")
-        imgOrig_norm255 = Normalize255(imgOrig) # noramalize the picture to values between 0 and 255
-        histOrg, edges = np.histogram(imgOrig_norm255, 256, [0, 256]) # create a histogram of the image with 256 bins
-        cumsumOrig = np.cumsum(histOrg) # create the cumsum of the image
+        if (countnum == 2): #checks if the pic is grayscale or rgb
+            # print("gray scale image")
+            imgOrig_norm255 = Normalize255(imgOrig) # noramalize the picture to values between 0 and 255
+            histOrg, edges = np.histogram(imgOrig_norm255, 256, [0, 256]) # create a histogram of the image with 256 bins
+            cumsumOrig = np.cumsum(histOrg) # create the cumsum of the image
 
-        # create a look up table
-        lut = cumsumOrig * 255 / pixel_num
-        lut = np.ceil(lut)
+            # create a look up table
+            lut = cumsumOrig * 255 / pixel_num
+            lut = np.ceil(lut)
 
-        imEq = imgOrig_norm255 # create an array that is the same as the original so that it will be the exact same size
+            imEq = imgOrig_norm255 # create an array that is the same as the original so that it will be the exact same size
 
-        # change the values of the image by the lut
-        for row in range(0, shape[0]):
-            for col in range(0, shape[1]):
-                x = imgOrig_norm255[row][col]
-                x = int(x) # casted to unt so that it wont be a float so that i can get the get the value of the look up table at that index
-                y = lut[x]
-                imEq[row][col] = y
+            # change the values of the image by the lut
+            for row in range(0, shape[0]):
+                for col in range(0, shape[1]):
+                    x = imgOrig_norm255[row][col]
+                    x = int(x) # casted to unt so that it wont be a float so that i can get the get the value of the look up table at that index
+                    y = lut[x]
+                    imEq[row][col] = y
 
-        histEQ, edges = np.histogram(imEq, 256, [0, 256]) # create a new histogram of the new image
-        imEq = NormalizeData(imEq) # normalize the image
-        return (imEq, histOrg, histEQ)
+            histEQ, edges = np.histogram(imEq, 256, [0, 256]) # create a new histogram of the new image
+            imEq = NormalizeData(imEq) # normalize the image
+            return (imEq, histOrg, histEQ)
 
-    else:
-        # print("color image")
-        yiq = transformRGB2YIQ(imgOrig) # transform the image to YIQ so that we can do the histogram equalization only on the y channel
-        y = yiq[:, :, 0]
-        y255 = Normalize255(y) # normalize
-        histOrg, edges = np.histogram(y255, 256, [0, 256]) #create a histogram of the y channel with 256 bins
-        cumsumOrig = np.cumsum(histOrg) # create the cumsum of the y channel
+        else:
+            # print("color image")
+            yiq = transformRGB2YIQ(imgOrig) # transform the image to YIQ so that we can do the histogram equalization only on the y channel
+            y = yiq[:, :, 0]
+            y255 = Normalize255(y) # normalize
+            histOrg, edges = np.histogram(y255, 256, [0, 256]) #create a histogram of the y channel with 256 bins
+            cumsumOrig = np.cumsum(histOrg) # create the cumsum of the y channel
 
-        #create lut
-        lut = cumsumOrig * 255 / pixel_num
-        lut = np.ceil(lut)
+            #create lut
+            lut = cumsumOrig * 255 / pixel_num
+            lut = np.ceil(lut)
 
-        y_new = y255 # create an array that is the same as the original so that it will be the exact same size
-        # change the values of the y channel by the lut
-        for row in range(0, shape[0]):
-            for col in range(0, shape[1]):
-                x = y255[row][col]
-                x = int(x)
-                num = lut[x]
-                y_new[row][col] = num
+            y_new = y255 # create an array that is the same as the original so that it will be the exact same size
+            # change the values of the y channel by the lut
+            for row in range(0, shape[0]):
+                for col in range(0, shape[1]):
+                    x = y255[row][col]
+                    x = int(x)
+                    num = lut[x]
+                    y_new[row][col] = num
 
-        histEQ, edges = np.histogram(y_new, 256, [0, 256]) # create a new histogram of the new y channel
+            histEQ, edges = np.histogram(y_new, 256, [0, 256]) # create a new histogram of the new y channel
 
-        y_new = NormalizeData(y_new)
-        yiq[:, :, 0] = y_new # normalize the y channel
-        imEq = transformYIQ2RGB(yiq) # transform the image back to rgb
-        imEq = NormalizeData(imEq) # normalize the image
-        return (imEq, histOrg, histEQ)
+            y_new = NormalizeData(y_new)
+            yiq[:, :, 0] = y_new # normalize the y channel
+            imEq = transformYIQ2RGB(yiq) # transform the image back to rgb
+            imEq = NormalizeData(imEq) # normalize the image
+            return (imEq, histOrg, histEQ)
+    except:
+        print("was not given an array")
 
-    # pass
 
 # function to help with the quantization
 

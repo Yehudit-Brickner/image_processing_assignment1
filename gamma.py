@@ -32,36 +32,38 @@ def gammaDisplay(img_path: str, rep: int):
     :param rep: grayscale(1) or RGB(2)
     :return: None
     """
-
-    if rep == 1: # check if the image is grayscale or rgb
-        img_gray = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
-        img_gray = NormalizeData((img_gray))
-    else:
-        img_color = cv2.imread(img_path)
-        img_color = NormalizeData((img_color))
-    # i am using try and exempt to catch errors that will stop the main from running
     try:
-        # create a separate window named 'image' for trackbar
-        cv2.namedWindow('image')
-        # create trackbar in 'image' window with name 'gamma''
-        cv2.createTrackbar('gamma', 'image', 0, 200,nothing)
+        if rep == 1: # check if the image is grayscale or rgb
+            img_gray = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+            img_gray = NormalizeData((img_gray))
+        else:
+            img_color = cv2.imread(img_path)
+            img_color = NormalizeData((img_color))
 
-        while (1):
+        # i am using an inner try and except to catch errors that will stop the main from continuing to run
+        try:
+            # create a separate window named 'image' for trackbar
+            cv2.namedWindow('image')
+            # create trackbar in 'image' window with name 'gamma''
+            cv2.createTrackbar('gamma', 'image', 0, 200,nothing)
 
-            gamma= cv2.getTrackbarPos('gamma', 'image')/100.0
-            # the gamma value will br the value of thr traker divided by 100.0 so that tha gamma value will actuallly be netwen 0 and 1
+            while (1):
 
-            if rep == 1:
-                img_gray_copy = img_gray ** gamma # create a copy of the image array raised to the power of the gamma
-                cv2.imshow('image', img_gray_copy)
-            else:
-                img_color_copy = img_color ** gamma # create a copy of the image array raised to the power of the gamma
-                cv2.imshow('image',img_color_copy)
-            cv2.waitKey(1) # wait 1 milli sec before going back to the beginning of the while
-        cv2.destroyAllWindows() # destroys the window
+                gamma= cv2.getTrackbarPos('gamma', 'image')/100.0
+                # the gamma value will br the value of thr traker divided by 100.0 so that tha gamma value will actuallly be netwen 0 and 1
+
+                if rep == 1:
+                    img_gray_copy = img_gray ** gamma # create a copy of the image array raised to the power of the gamma
+                    cv2.imshow('image', img_gray_copy)
+                else:
+                    img_color_copy = img_color ** gamma # create a copy of the image array raised to the power of the gamma
+                    cv2.imshow('image',img_color_copy)
+                cv2.waitKey(1) # wait 1 milli sec before going back to the beginning of the while
+            cv2.destroyAllWindows() # destroys the window
+        except:
+            print("an error was caught")
     except:
-        print("an error was caught")
-
+        print ("Could not open/read file:", img_path)
 
 
 
@@ -69,7 +71,7 @@ def gammaDisplay(img_path: str, rep: int):
 
 def main():
    gammaDisplay('bac_con.png', LOAD_GRAY_SCALE)
-   gammaDisplay('sunset1.jpg', LOAD_GRAY_SCALE)
+
 
 if __name__ == '__main__':
     main()
