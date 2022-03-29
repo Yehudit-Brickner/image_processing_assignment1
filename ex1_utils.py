@@ -172,15 +172,16 @@ def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarra
             lut = cumsumOrig * 255 / pixel_num
             lut = np.ceil(lut)
 
-            imEq = imgOrig_norm255 # create an array that is the same as the original so that it will be the exact same size
-
+            imEq = imgOrig_norm255.copy() # create an array that is the same as the original so that it will be the exact same size
+            for num in range(256):
+                imEq[imgOrig_norm255 == num] = int(lut[num])
             # change the values of the image by the lut
-            for row in range(0, shape[0]):
-                for col in range(0, shape[1]):
-                    x = imgOrig_norm255[row][col]
-                    x = int(x) # casted to unt so that it wont be a float so that i can get the get the value of the look up table at that index
-                    y = lut[x]
-                    imEq[row][col] = y
+            # for row in range(0, shape[0]):
+            #     for col in range(0, shape[1]):
+            #         x = imgOrig_norm255[row][col]
+            #         x = int(x) # casted to unt so that it wont be a float so that i can get the get the value of the look up table at that index
+            #         y = lut[x]
+            #         imEq[row][col] = y
 
             histEQ, edges = np.histogram(imEq, 256, [0, 256]) # create a new histogram of the new image
             imEq = NormalizeData(imEq) # normalize the image
@@ -193,24 +194,19 @@ def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarra
             y255 = Normalize255(y) # normalize
             histOrg, edges = np.histogram(y255, 256, [0, 256]) #create a histogram of the y channel with 256 bins
             cumsumOrig = np.cumsum(histOrg) # create the cumsum of the y channel
-
             #create lut
             lut = cumsumOrig * 255 / pixel_num
             lut = np.ceil(lut)
 
-            y_new = y255 # create an array that is the same as the original so that it will be the exact same size
+            y_new = y255.copy() # create an array that is the same as the original so that it will be the exact same size
+            y255=y255.astype(int)
             # change the values of the y channel by the lut
-            for row in range(0, shape[0]):
-                for col in range(0, shape[1]):
-                    x = y255[row][col]
-                    x = int(x)
-                    num = lut[x]
-                    y_new[row][col] = num
-
+            for num in range(256):
+                y_new[y255 == num] = int(lut[num])
             histEQ, edges = np.histogram(y_new, 256, [0, 256]) # create a new histogram of the new y channel
 
-            y_new = NormalizeData(y_new)
-            yiq[:, :, 0] = y_new # normalize the y channel
+            y_new = NormalizeData(y_new) # normalize the y channel
+            yiq[:, :, 0] = y_new # put in the new y channel
             imEq = transformYIQ2RGB(yiq) # transform the image back to rgb
             imEq = NormalizeData(imEq) # normalize the image
             return (imEq, histOrg, histEQ)
@@ -549,7 +545,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
             z = find_orig_z(pixel_num, nQuant, cumsum, z) # find original z by pixels weight
 
             for k in range(0, nIter):
-                if count > 10:
+                if count > 20:
                     return list_of_pic, list_mse
                 # print("iteration ", k)
                 q = find_new_q(z, q, hist, pixel_num)
@@ -563,11 +559,9 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
                     if list_mse[-1] - mse_new < 0.001:
                         count = count+1
                     # print(list_mse[-1], mse_new)
-                    # if (list_mse[-1]< mse_new+1):
-                    #     print("mse got bigger")
-                    #     # print(list_mse)
-                    #     # print(list_of_pic)
-                    #     return list_of_pic, list_mse
+                    if (list_mse[-1]+1< mse_new):
+                        print("mse got bigger")
+                        return list_of_pic, list_mse
                 list_mse.append(mse_new)
                 new_img = NormalizeData(new_img)
                 list_of_pic.append(new_img)
@@ -582,7 +576,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
             z = find_orig_z(pixel_num, nQuant, cumsum, z)
 
             for k in range(0, nIter):
-                if count > 10:
+                if count > 20:
                     return list_of_pic, list_mse
                 # print("iteration ", k)
                 q = find_new_q(z, q, hist, pixel_num)
@@ -595,9 +589,9 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
                     if list_mse[-1] - mse_new < 0.001:
                         count=count+1
                     # print(list_mse[-1], mse_new)
-                    # if (list_mse[-1] < mse_new+1):
-                    #     print("mse got bigger")
-                    #     return list_of_pic, list_mse
+                    if (list_mse[-1] +1< mse_new):
+                        print("mse got bigger")
+                        return list_of_pic, list_mse
                 list_mse.append(mse_new)
                 y_new = NormalizeData(new_img)
                 yiq[:, :, 0] = y_new
