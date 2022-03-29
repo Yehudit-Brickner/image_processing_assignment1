@@ -143,5 +143,8 @@ In this assignment we had to write 7 functions:
 <br> we will show the image raised to the power of gamma.
 
 
+## images
+![image](https://github.com/Yehudit-Brickner/image_processing_assignment1/blob/main/beach_imgs.png)
+![image](https://github.com/Yehudit-Brickner/image_processing_assignment1/blob/main/sunset_images.png)
 
 
