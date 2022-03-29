@@ -175,20 +175,12 @@ def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarra
             imEq = imgOrig_norm255.copy() # create an array that is the same as the original so that it will be the exact same size
             for num in range(256):
                 imEq[imgOrig_norm255 == num] = int(lut[num])
-            # change the values of the image by the lut
-            # for row in range(0, shape[0]):
-            #     for col in range(0, shape[1]):
-            #         x = imgOrig_norm255[row][col]
-            #         x = int(x) # casted to unt so that it wont be a float so that i can get the get the value of the look up table at that index
-            #         y = lut[x]
-            #         imEq[row][col] = y
 
             histEQ, edges = np.histogram(imEq, 256, [0, 256]) # create a new histogram of the new image
             imEq = NormalizeData(imEq) # normalize the image
             return (imEq, histOrg, histEQ)
 
         else:
-            # print("color image")
             yiq = transformRGB2YIQ(imgOrig) # transform the image to YIQ so that we can do the histogram equalization only on the y channel
             y = yiq[:, :, 0]
             y255 = Normalize255(y) # normalize
@@ -203,6 +195,7 @@ def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarra
             # change the values of the y channel by the lut
             for num in range(256):
                 y_new[y255 == num] = int(lut[num])
+
             histEQ, edges = np.histogram(y_new, 256, [0, 256]) # create a new histogram of the new y channel
 
             y_new = NormalizeData(y_new) # normalize the y channel
@@ -214,92 +207,6 @@ def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarra
         print("was not given an array")
 
 """
-# function to help with the quantization
-
-def upperold(x, arr,num_pixel):
-    y_val = arr[x]
-    return y_val/num_pixel * x
-
-
-def lowerold(x, arr,num_pixel):
-    y_val = arr[x]
-    return y_val/num_pixel
-
-
-def find_new_z(z, q):
-    #     print("z old=",z)
-    #     print("q=",q)
-    for i in range(len(q) - 1):
-        z[i + 1] = (q[i] + q[i + 1]) / 2
-    return z
-
-
-def find_new_q(z, q, hist,num_pixel):
-    ans = 1
-    new_q = q
-    j = 0;
-    for zs in range(len(z) - 1):
-        res1 = 0
-        res2 = 0
-        for num in range(z[zs], z[zs + 1]):
-            res1 += upperold(num, hist,num_pixel)
-            res2 +=lowerold(num, hist,num_pixel)
-
-        if res2 != 0:
-            qi = int(res1 / res2)
-            q[j] = qi
-            j = j + 1
-        else:
-            ans = 0
-            #             print("res 2 = 0")
-            #             q[j]=int((z[zs]+z[zs+1])/2)
-            new_q = q
-            return new_q, ans
-    new_q = np.ceil(new_q)
-    return new_q, ans
-
-
-def newpic(imOrig255, hist, nQuant, z, q):
-    shape = imOrig255.shape
-    new_img = imOrig255
-    for row in range(0, shape[0]):
-        for col in range(0, shape[1]):
-            x = imOrig255[row][col]
-            x = int(x)
-            for num in range(nQuant):
-                if x >= z[num] and x <= z[num + 1]:
-                    new_img[row][col] = q[num]
-    return new_img
-
-
-def calc_mse(nQuant, z, q, hist,pixel_num):
-    mse = 0
-    for i in range(nQuant):
-        mse1 = 0
-        for j in range(z[i], z[i + 1]):
-            mse1 += (q[i] - j) * (q[i] - j) * hist[j]/pixel_num
-        mse += mse1
-    return mse
-
-
-def find_orig_z(pixel_num, nQuant, cumsum, z):
-    bound1 = pixel_num / nQuant
-    bound = bound1
-    i = 1
-    for x in range(256):
-        if (cumsum[x] >= bound):
-            z[i] = x
-            i = i + 1
-            bound = bound + bound1
-
-    z = z.astype(int)
-    return z
-
-
-
-
-
-
 
 
 def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarray], List[float]):
@@ -481,13 +388,8 @@ def find_new_q(z, q, hist, num_pixel):
 def newpic(imOrig255, hist, nQuant, z, q):
     shape = imOrig255.shape
     new_img = imOrig255.copy()
-    for row in range(0, shape[0]):
-        for col in range(0, shape[1]):
-            x = imOrig255[row][col]
-            # x = int(x)
-            for num in range(nQuant):
-                if x >= z[num] and x <= z[num + 1]:
-                    new_img[row][col] = q[num]
+    for num in range(nQuant):
+        new_img[imOrig255>z[num]] =q[num]
     return new_img
 
 
