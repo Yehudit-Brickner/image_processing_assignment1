@@ -127,7 +127,7 @@ In this assignment we had to write 7 functions:
 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will return the image_list and the mse_list
 <br> this functin used 7 helping functions:
 <br> a function to find the the original z
-<br> upper and lower- functions for the numerater and denominater of the function to find the new q.
+<br> upper and lower- functions for the numerater and denominater of the equation to find the new q.
 <br> a function to find the new q array
 <br> a function to find the new z
 <br> a function to create the new array/image
@@ -141,5 +141,7 @@ In this assignment we had to write 7 functions:
 <br> we will create a while loop that will always stay true.
 <br> we will get the gamma value from the trackbar and divide by 100.0.
 <br> we will show the image raised to the power of gamma.
+
+
 
 
