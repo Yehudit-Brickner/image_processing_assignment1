@@ -443,7 +443,7 @@ def find_new_z(z, q):
     new_z =z.copy()
     for i in range(len(q) - 1):
         new_z[i + 1] = (q[i] + q[i + 1]) / 2
-    print("new z",new_z)
+    # print("new z",new_z)
     return new_z
 
 
@@ -460,16 +460,24 @@ def find_new_q(z, q, hist, num_pixel):
             for num in range(z[zs], z[zs + 1]):
                 res1 += upper(num, hist, num_pixel)
                 res2 += lower(num, hist, num_pixel)
+            # print( "res1 and 2",res1, res2)
             if res1 == 0 or res2 == 0:
-                # new_q[j] = int((z[zs] + z[zs + 1]) / 2)
                 new_q[j] = z[zs]
                 j = j + 1
             else:
-                qi = int(res1 / res2)
+                qi = res1 / res2
                 new_q[j] = qi
                 j = j + 1
-    new_q = new_q.astype(int)
-    print("new q",new_q)
+    # print("new q",new_q)
+    # new_q=q.copy()
+    # for zs in range(len(z) - 1):
+    #     # print(z[zs], z[zs+1])
+    #     part_hist = hist[z[zs]:z[zs+1]]
+    #     idx = range(len(part_hist))
+    #     weightedMean = (part_hist * idx).sum() / np.sum(part_hist)
+    #     new_q[zs]=weightedMean+z[zs]
+    # # new_q = new_q.astype(int)
+    # print("new q", new_q)
     return new_q
 
 
@@ -480,7 +488,7 @@ def newpic(imOrig255, hist, nQuant, z, q):
     for row in range(0, shape[0]):
         for col in range(0, shape[1]):
             x = imOrig255[row][col]
-            x = int(x)
+            # x = int(x)
             for num in range(nQuant):
                 if x >= z[num] and x <= z[num + 1]:
                     new_img[row][col] = q[num]
@@ -508,6 +516,11 @@ def find_orig_z(pixel_num, nQuant, cumsum, z):
     new_z[0] = 0
     new_z[len(z) - 1] = 255
     new_z = new_z.astype(int)
+    # new_z=z.copy()
+    # for i in range(nQuant+1):
+    #     new_z[i]=(i)/nQuant*255
+    # new_z=new_z.astype(int)
+    # print("first z",new_z)
     return new_z
 
 
@@ -525,7 +538,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         list_of_pic = []
         list_mse = []
         shape = imOrig.shape
-        pixel_num = shape[0] * shape[1]
+        pixel_num = (float) (shape[0] * shape[1])
         count = 0
 
         if len(shape) == 2:
@@ -533,12 +546,12 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
             hist, edges = np.histogram(imOrig255, 256, [0, 256])
             cumsum = np.cumsum(hist)
 
-            z = find_orig_z(pixel_num, nQuant, cumsum, z)
+            z = find_orig_z(pixel_num, nQuant, cumsum, z) # find original z by pixels weight
 
             for k in range(0, nIter):
                 if count > 10:
                     return list_of_pic, list_mse
-                print("iteration ", k)
+                # print("iteration ", k)
                 q = find_new_q(z, q, hist, pixel_num)
                 z = find_new_z(z, q)
 
@@ -549,7 +562,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
                 if k > 0:
                     if list_mse[-1] - mse_new < 0.001:
                         count = count+1
-                    print(list_mse[-1], mse_new)
+                    # print(list_mse[-1], mse_new)
                     # if (list_mse[-1]< mse_new+1):
                     #     print("mse got bigger")
                     #     # print(list_mse)
@@ -571,7 +584,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
             for k in range(0, nIter):
                 if count > 10:
                     return list_of_pic, list_mse
-                print("iteration ", k)
+                # print("iteration ", k)
                 q = find_new_q(z, q, hist, pixel_num)
                 z = find_new_z(z, q)
 
@@ -581,7 +594,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
                 if(k>0):
                     if list_mse[-1] - mse_new < 0.001:
                         count=count+1
-                    print(list_mse[-1], mse_new)
+                    # print(list_mse[-1], mse_new)
                     # if (list_mse[-1] < mse_new+1):
                     #     print("mse got bigger")
                     #     return list_of_pic, list_mse
