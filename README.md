@@ -19,11 +19,11 @@ In this assignment we had to write 7 functions:
 - gammaDisplay = dispaly an image and a trackbar that will show the gamma transfmation.
 
 
+<br><br>
+<br> all of the function below use a function to normalize an array to values between 0 and 1.
+<br> we also used a function to take an array that was normalized and make the values be between 0 and 255.
 
-<br>
-<br>
-
-
+<br> <br>
 <b>imReadAndConvert</b>
 <br> this function is surrounded by a try and except in case we get the wrong file name for the image.
 <br> we will read the image.
@@ -125,7 +125,13 @@ In this assignment we had to write 7 functions:
 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will transform the image back to rgb and normalize
 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will add the image to the image_list
 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will return the image_list and the mse_list
-
+<br> this functin used 7 helping functions:
+<br> a function to find the the original z
+<br> upper and lower- functions for the numerater and denominater of the function to find the new q.
+<br> a function to find the new q array
+<br> a function to find the new z
+<br> a function to create the new array/image
+<br> a function to calculate the mse
 <br><br>
 <b>gammaDisplay</b>
 <br> this function is surrounded by a try and except in case we get the wrong file name for the image.
