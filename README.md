@@ -29,15 +29,15 @@ In this assignment we had to write 7 functions:
 <br> we will read the image.
 <br> if the image is in grayscale we will normalize the array and return it.
 <br> if the image is in color we will change it from bgr to rgb  normalize the array and return it.
-<br>
-<br>
+
+<br><br>
 <b>imDisplay</b>
 <br> this function is surrounded by a try and except in case we get the wrong file name for the image.
 <br> we will call the imReadAndConvert function to get the array of the image.
 <br> if the image is in grayscale we will show it using "cmap =gray" so that we see the image in grayscale and not a map of itenseties.
 <br> if the image is in color we will show it.
-<br>
-<br>
+
+<br><br>
 <b>transformRGB2YIQ</b>
 <br> this function is surrounded by a try and except in case we get an empty array.
 <br> we will take the array of the image and split it into 3 arrays r g b.
@@ -45,8 +45,8 @@ In this assignment we had to write 7 functions:
 <br> we will combine them together again into a 3d array
 <br> we will normalize the arrays.
 <br> and return the new array
-<br>
-<br>
+
+<br><br>
 <b>transformYIQ2RGB</b>
 <br> this function is surrounded by a try and except in case we get an empty array.
 <br> we will take the array of the image and split it into 3 arrays y i q.
@@ -54,8 +54,8 @@ In this assignment we had to write 7 functions:
 <br> we will normalize the arrays.
 <br> we will combine them together again into a 3d array
 <br> and return the new array
-<br>
-<br>
+
+<br><br>
 <b>hsitogramEqualize</b>
 <br> this function is surrounded by a try and except in case we get an empty array.
 <br> we will check if the image is grayscale or rgb
@@ -77,14 +77,56 @@ In this assignment we had to write 7 functions:
 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will make a copy of the y channel array and change the values of it using the cumsum 
 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will make a histogram of the new y channel
 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will normalize the new y channel
-<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will put the new y channel in the original image
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will put the new y channel in the original yiq image
 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will transform the picture back to rgb
 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will return the new image and both of the histograms
-<br>
-<br>
+
+<br><br>
 <b>quantizeImage</b>
-<br>
-<br>
+<br> this function is surrounded by a try and except in case we get an empty array.
+<br> we will create a few constants that we will use
+<br> we wil ckeck if the image is grayscale or rgb
+<br> if the picture is in grayscale we will do the following
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will take the normalized array and normalize it so that it is between 0 and 255
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will create a histogram of the intenseties of the image
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will create the cumsum of the histogram
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will use the cumsum to find the original z array (boarders)
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will create a loop that will run nIter times or will stop if it converges.
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will check if count is bigger then 10 if so the image has converged and we can return the image_list and mse_list
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will find the q array based on the z array
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will find the new z array base on the q array
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will create a new image using the z and q arrays 
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will calculate the mse
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will check and see if the last mse - the new mse is smaller than 0.001, if so we will increment count by 1.
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will check if the mse is smaller than the last mse+1
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if the new mse is bigger we will stop the loop and return the image_list and mse_list
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will add the mse to the mse_list
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will normalize the image
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will add the image to the image_list
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will return the image_list and the mse_list
+<br> if the image is rgb we will do the following:
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will transform the image to yiq
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will take the y channel and normalize it so that it is between 0 and 255
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will create a histogram of the intenseties of the y channel
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will create the cumsum of the histogram
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will use the cumsum to find the original z array (boarders)
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will create a loop that will run nIter times or will stop if it converges.
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will check if count is bigger then 10 if so, the image has converged and we can return the image_list and mse_list
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will find the q array based on the z array
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will find the new z array base on the q array
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will create a new y channel using the z and q  arrays 
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will calculate the mse
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will check and see if the last mse - the new mse is smaller than 0.001, if so we will increment count by 1.
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will check if the mse is smaller than the last mse+1
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if the new mse is bigger we will stop the loop and return the image_list and mse_list
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will add the mse to the mse_list
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will normalize the y channel
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will put the new y channel in the original yiq image
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will transform the image back to rgb and normalize
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will add the image to the image_list
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will return the image_list and the mse_list
+
+<br><br>
 <b>gammaDisplay</b>
 <br> this function is surrounded by a try and except in case we get the wrong file name for the image.
 <br> we will read the image and normalize it.
