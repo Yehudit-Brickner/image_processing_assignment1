@@ -57,6 +57,29 @@ In this assignment we had to write 7 functions:
 <br>
 <br>
 <b>hsitogramEqualize</b>
+<br> this function is surrounded by a try and except in case we get an empty array.
+<br> we will check if the image is grayscale or rgb
+<br> if the image is gray scale we will do the following:
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will take the normalized array and normalize it so that it is between 0 and 255
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will create a histogram of the intenseties of the image
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will create the cumsum of the histogram
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will create a look up table -  this will tell us how to change the picture
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will make a copy of the original array and change the values of it using the cumsum
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will make a histogram of the new image 
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will normalize the image
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will return the new image and both of the histograms
+<br> if the image is rgb we will do the following:
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will transform the image to yiq
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will take the y channel and normalize it so that it is between 0 and 255
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will create a histogram of the intenseties of the y channel of the image
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will create the cumsum of the histogram
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will create a look up table -  this will tell us how to change the picture
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will make a copy of the y channel array and change the values of it using the cumsum 
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will make a histogram of the new y channel
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will normalize the new y channel
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will put the new y channel in the original image
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will transform the picture back to rgb
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; we will return the new image and both of the histograms
 <br>
 <br>
 <b>quantizeImage</b>
