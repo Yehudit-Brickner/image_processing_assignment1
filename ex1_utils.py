@@ -201,7 +201,6 @@ def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarra
             y_new = NormalizeData(y_new) # normalize the y channel
             yiq[:, :, 0] = y_new # put in the new y channel
             imEq = transformYIQ2RGB(yiq) # transform the image back to rgb
-            imEq = NormalizeData(imEq) # normalize the image
             return (imEq, histOrg, histEQ)
     except:
         print("was not given an array")
@@ -305,64 +304,63 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
         pixel_num = (float) (shape[0] * shape[1])
         count = 0
 
-        if len(shape) == 2:
-            imOrig255 = Normalize255(imOrig)
-            hist, edges = np.histogram(imOrig255, 256, [0, 256])
-            cumsum = np.cumsum(hist)
+        if len(shape) == 2: # if the picture is grayscale
+            imOrig255 = Normalize255(imOrig) # normalize
+            hist, edges = np.histogram(imOrig255, 256, [0, 256])  # create a histogram of the images with 256 bins
+            cumsum = np.cumsum(hist) # create the cumsum of the image
 
             z = find_orig_z(pixel_num, nQuant, cumsum, z) # find original z by pixels weight
 
-            for k in range(0, nIter):
+            for k in range(0, nIter): # make a loop that will run nIter times unless told to stop
                 if count > 10:
-                    return list_of_pic, list_mse
+                    return list_of_pic, list_mse # if count is bigger than 10. then 10 times the diference between the current and last mse was smaller than 0.001, that means that we have converged
                 # print("iteration ", k)
-                q = find_new_q(z, q, hist, pixel_num)
-                z = find_new_z(z, q)
+                q = find_new_q(z, q, hist, pixel_num)   # find new q
+                z = find_new_z(z, q) # find new z
 
-                new_img = newpic(imOrig255, nQuant, z, q)
-                mse_new = calc_mse(imOrig255,new_img)
+                new_img = newpic(imOrig255, nQuant, z, q) # create the new img using z and q
+                mse_new = calc_mse(imOrig255,new_img) # calculate the mse
 
-
-                if k > 0:
-                    if list_mse[-1] - mse_new < 0.001:
+                if k > 0: # if we are on the first iteration we cant compare to anything so we will only compare from the 2nd iteration and on.
+                    if list_mse[-1] - mse_new < 0.001: # check the difference between the last and current mse
                         count = count+1
-                    if (list_mse[-1]+1< mse_new):
+                    if (list_mse[-1]+1< mse_new): # if the last mse+1 is bigger than the current mse we will stop
                         print("mse got bigger")
                         return list_of_pic, list_mse
-                list_mse.append(mse_new)
-                new_img = NormalizeData(new_img)
-                list_of_pic.append(new_img)
+                list_mse.append(mse_new) # add the mse to the mse_list
+                new_img = NormalizeData(new_img) # noramlize the image
+                list_of_pic.append(new_img) # add the image to the img_list
 
             return list_of_pic, list_mse
-        else:
-            yiq = transformRGB2YIQ(imOrig)
+        else: # image is rgb
+            yiq = transformRGB2YIQ(imOrig) # transform the image to YIQ
             y = yiq[:, :, 0]
-            y255 = Normalize255(y)
-            hist, edges = np.histogram(y255, 256, [0, 256])
-            cumsum = np.cumsum(hist)
-            z = find_orig_z(pixel_num, nQuant, cumsum, z)
+            y255 = Normalize255(y) # normalize
+            hist, edges = np.histogram(y255, 256, [0, 256]) # create a histogram of the y channel
+            cumsum = np.cumsum(hist) # create the cumsum of the y channel
+            z = find_orig_z(pixel_num, nQuant, cumsum, z)  # find the original z
 
-            for k in range(0, nIter):
+            for k in range(0, nIter): # make a loop that will run nIter times unless told to stop
                 if count > 10:
-                    return list_of_pic, list_mse
-                q = find_new_q(z, q, hist, pixel_num)
-                z = find_new_z(z, q)
+                    return list_of_pic, list_mse # if count is bigger than 10. then 10 times the diference between the current and last mse was smaller than 0.001, that means that we have converged
+                q = find_new_q(z, q, hist, pixel_num) # find new q
+                z = find_new_z(z, q) # find new z
 
-                new_img = newpic(y255, nQuant, z, q)
-                mse_new = calc_mse(y255,new_img)
+                new_img = newpic(y255, nQuant, z, q)  # create new y channel
+                mse_new = calc_mse(y255,new_img) # calculate the mse
 
-                if(k>0):
-                    if list_mse[-1] - mse_new < 0.001:
+                if(k>0): # if we are on the first iteration we cant compare to anything so we will only compare from the 2nd iteration and on.
+                    if list_mse[-1] - mse_new < 0.001: # check the difference between the last and current mse
                         count=count+1
-                    if (list_mse[-1] +1< mse_new):
+                    if (list_mse[-1] +1< mse_new): # if the last mse+1 is bigger than the current mse we will stop
                         print("mse got bigger")
                         return list_of_pic, list_mse
-                list_mse.append(mse_new)
-                y_new = NormalizeData(new_img)
-                yiq[:, :, 0] = y_new
-                imnew = transformYIQ2RGB(yiq)
-                #imnew = NormalizeData(imnew)
-                list_of_pic.append(imnew)
+                list_mse.append(mse_new) # add the mse to the mse_list
+                y_new = NormalizeData(new_img) # normalize the y channel
+                yiq[:, :, 0] =y_new # out in the ew y channel
+                imnew = transformYIQ2RGB(yiq) # transform the image back to rgb
+                imnew = NormalizeData(imnew) # normalize the image
+                list_of_pic.append(imnew) # add the image to the image_list
 
             return list_of_pic, list_mse
     except:
