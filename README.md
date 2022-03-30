@@ -144,12 +144,22 @@ In this assignment we had to write 7 functions:
 
 
 ## images
+
+#### beach 
 ![image](https://github.com/Yehudit-Brickner/image_processing_assignment1/blob/main/readme_pics/beach_imgs.png)
+  
 ![video](https://github.com/Yehudit-Brickner/image_processing_assignment1/blob/main/readme_pics/beach_gray.gif)
+
 ![video](https://github.com/Yehudit-Brickner/image_processing_assignment1/blob/main/readme_pics/beach_color.gif)
+
+ #### sunset
 ![image](https://github.com/Yehudit-Brickner/image_processing_assignment1/blob/main/readme_pics/sunset_images.png)
+  
 ![video](https://github.com/Yehudit-Brickner/image_processing_assignment1/blob/main/readme_pics/sunset_gray.gif)
+  
 ![video](https://github.com/Yehudit-Brickner/image_processing_assignment1/blob/main/readme_pics/sunset_color.gif)
+
+#### chain 
 ![video](https://github.com/Yehudit-Brickner/image_processing_assignment1/blob/main/readme_pics/chain.gif)
 
 
