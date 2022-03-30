@@ -261,6 +261,7 @@ def newpic(imOrig255, nQuant, z, q):
 
 def calc_mse(imgOrig, newImg):
     mse=((imgOrig- newImg) ** 2).mean(axis=None)
+    #mse=math.sqrt(mse)
     return mse
 
 def find_orig_z(pixel_num, nQuant, cumsum, z):
@@ -330,7 +331,6 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
                 list_mse.append(mse_new) # add the mse to the mse_list
                 new_img = NormalizeData(new_img) # noramlize the image
                 list_of_pic.append(new_img) # add the image to the img_list
-
             return list_of_pic, list_mse
         else: # image is rgb
             yiq = transformRGB2YIQ(imOrig) # transform the image to YIQ
@@ -357,7 +357,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
                         return list_of_pic, list_mse
                 list_mse.append(mse_new) # add the mse to the mse_list
                 y_new = NormalizeData(new_img) # normalize the y channel
-                yiq[:, :, 0] =y_new # out in the ew y channel
+                yiq[:, :, 0] =y_new # put in the new y channel
                 imnew = transformYIQ2RGB(yiq) # transform the image back to rgb
                 imnew = NormalizeData(imnew) # normalize the image
                 list_of_pic.append(imnew) # add the image to the image_list
