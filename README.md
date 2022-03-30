@@ -19,6 +19,8 @@ In this assignment we had to write 7 functions:
 - gammaDisplay = dispaly an image and a trackbar that will show the gamma transfmation.
 
 
+In the wiki there is a full explanation for all the functions!
+
 <br><br>
 <br> all of the function below use a function to normalize an array to values between 0 and 1.
 <br> we also used a function to take an array that was normalized and make the values be between 0 and 255.
