@@ -313,7 +313,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
             z = find_orig_z(pixel_num, nQuant, cumsum, z) # find original z by pixels weight
 
             for k in range(0, nIter): # make a loop that will run nIter times unless told to stop
-                if count > 10:
+                if count > 20:
                     return list_of_pic, list_mse # if count is bigger than 10. then 10 times the diference between the current and last mse was smaller than 0.001, that means that we have converged
                 # print("iteration ", k)
                 q = find_new_q(z, q, hist, pixel_num)   # find new q
@@ -323,11 +323,18 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
                 mse_new = calc_mse(imOrig255,new_img) # calculate the mse
 
                 if k > 0: # if we are on the first iteration we cant compare to anything so we will only compare from the 2nd iteration and on.
-                    if list_mse[-1] - mse_new < 0.001: # check the difference between the last and current mse
-                        count = count+1
-                    if (list_mse[-1]+1< mse_new): # if the last mse+1 is bigger than the current mse we will stop
-                        print("mse got bigger")
-                        return list_of_pic, list_mse
+                    if(nQuant<10):
+                        if list_mse[-1] - mse_new < 0.001: # check the difference between the last and current mse
+                            count = count+1
+                        if (list_mse[-1]+1< mse_new): # if the last mse+1 is bigger than the current mse we will stop
+                            print("mse got bigger")
+                            return list_of_pic, list_mse
+                    else:
+                        if list_mse[-1] - mse_new < 0.001: # check the difference between the last and current mse
+                            count = count+1
+                        if (list_mse[-1]< mse_new): # if the last mse+1 is bigger than the current mse we will stop
+                            print("mse got bigger")
+                            return list_of_pic, list_mse
                 list_mse.append(mse_new) # add the mse to the mse_list
                 new_img = NormalizeData(new_img) # noramlize the image
                 list_of_pic.append(new_img) # add the image to the img_list
@@ -341,7 +348,7 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
             z = find_orig_z(pixel_num, nQuant, cumsum, z)  # find the original z
 
             for k in range(0, nIter): # make a loop that will run nIter times unless told to stop
-                if count > 10:
+                if count > 20:
                     return list_of_pic, list_mse # if count is bigger than 10. then 10 times the diference between the current and last mse was smaller than 0.001, that means that we have converged
                 q = find_new_q(z, q, hist, pixel_num) # find new q
                 z = find_new_z(z, q) # find new z
@@ -350,11 +357,18 @@ def quantizeImage(imOrig: np.ndarray, nQuant: int, nIter: int) -> (List[np.ndarr
                 mse_new = calc_mse(y255,new_img) # calculate the mse
 
                 if(k>0): # if we are on the first iteration we cant compare to anything so we will only compare from the 2nd iteration and on.
-                    if list_mse[-1] - mse_new < 0.001: # check the difference between the last and current mse
-                        count=count+1
-                    if (list_mse[-1] +1< mse_new): # if the last mse+1 is bigger than the current mse we will stop
-                        print("mse got bigger")
-                        return list_of_pic, list_mse
+                    if nQuant<10:
+                        if list_mse[-1] - mse_new < 0.001: # check the difference between the last and current mse
+                            count=count+1
+                        if (list_mse[-1] +1< mse_new): # if the last mse+1 is bigger than the current mse we will stop
+                            print("mse got bigger")
+                            return list_of_pic, list_mse
+                    else:
+                        if list_mse[-1] - mse_new < 0.001: # check the difference between the last and current mse
+                            count=count+1
+                        if (list_mse[-1]< mse_new): # if the last mse+1 is bigger than the current mse we will stop
+                            print("mse got bigger")
+                            return list_of_pic, list_mse
                 list_mse.append(mse_new) # add the mse to the mse_list
                 y_new = NormalizeData(new_img) # normalize the y channel
                 yiq[:, :, 0] =y_new # put in the new y channel
