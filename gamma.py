@@ -10,7 +10,6 @@
 """
 from ex1_utils import LOAD_GRAY_SCALE
 import numpy as np
-import matplotlib.pyplot as plt
 import cv2
 
 
