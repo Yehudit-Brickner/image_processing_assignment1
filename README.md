@@ -18,9 +18,10 @@ In this assignment we had to write 7 functions:
 - quantizeImage = takes the image and changes it so that it only has x colors, returning a list of the images array, and a list of the mse.
 - gammaDisplay = dispaly an image and a trackbar that will show the gamma transfmation.
 
+#### here is a link to this repository in github, please look at the wiki for full explanations of the function!
 
-##### In the wiki there is a full explanation for all the functions!
 
+[https://github.com/Yehudit-Brickner/image_processing_assignment1](link)
 
 ## images
 
