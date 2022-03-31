@@ -5,9 +5,9 @@ this project was done in pycharm
 <br> python version 3.10.0
 
 there are 3 files of code:
-- ex1_utils.py
-- gamma.py
-- ex1_main.py
+- ex1_utils.py , this file has the first 6 functions
+- gamma.py , this file is the main that we were given
+- ex1_main.py ,  this file has the last function
 
 In this assignment we had to write 7 functions:
 - imReadAndConvert = read an image and return the numpy array of the image.
