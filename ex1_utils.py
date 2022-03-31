@@ -165,7 +165,7 @@ def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarra
         if (countnum == 2): #checks if the pic is grayscale or rgb
             # print("gray scale image")
             imgOrig_norm255 = Normalize255(imgOrig) # noramalize the picture to values between 0 and 255
-            histOrg, edges = np.histogram(imgOrig_norm255, 256, [0, 256]) # create a histogram of the image with 256 bins
+            histOrg, edges = np.histogram(imgOrig_norm255, 256, [0, 255]) # create a histogram of the image with 256 bins
             cumsumOrig = np.cumsum(histOrg) # create the cumsum of the image
 
             # create a look up table
@@ -176,7 +176,7 @@ def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarra
             for num in range(256):
                 imEq[imgOrig_norm255 == num] = int(lut[num])
 
-            histEQ, edges = np.histogram(imEq, 256, [0, 256]) # create a new histogram of the new image
+            histEQ, edges = np.histogram(imEq, 256, [0, 255]) # create a new histogram of the new image
             imEq = NormalizeData(imEq) # normalize the image
             return (imEq, histOrg, histEQ)
 
@@ -184,7 +184,7 @@ def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarra
             yiq = transformRGB2YIQ(imgOrig) # transform the image to YIQ so that we can do the histogram equalization only on the y channel
             y = yiq[:, :, 0]
             y255 = Normalize255(y) # normalize
-            histOrg, edges = np.histogram(y255, 256, [0, 256]) #create a histogram of the y channel with 256 bins
+            histOrg, edges = np.histogram(y255, 256, [0, 255]) #create a histogram of the y channel with 256 bins
             cumsumOrig = np.cumsum(histOrg) # create the cumsum of the y channel
             #create lut
             lut = cumsumOrig * 255 / pixel_num
@@ -196,12 +196,12 @@ def hsitogramEqualize(imgOrig: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarra
             for num in range(256):
                 y_new[y255 == num] = int(lut[num])
 
-            histEQ, edges = np.histogram(y_new, 256, [0, 256]) # create a new histogram of the new y channel
+            histEQ, edges = np.histogram(y_new, 256, [0, 255]) # create a new histogram of the new y channel
 
             y_new = NormalizeData(y_new) # normalize the y channel
             yiq[:, :, 0] = y_new # put in the new y channel
             imEq = transformYIQ2RGB(yiq) # transform the image back to rgb
-            return (imEq, histOrg, histEQ)
+            return imEq, histOrg, histEQ
     except:
         print("was not given an array")
 
@@ -269,7 +269,7 @@ def find_orig_z(pixel_num, nQuant, cumsum, z):
     bound1 = pixel_num / nQuant
     bound = bound1
     i = 1
-    for x in range(255):
+    for x in range(256):
         if (cumsum[x] >= bound):
             new_z[i] = x
             i = i + 1
